@@ -24,7 +24,23 @@ let
       codeworld-server = ../codeworld-server;
     };
 
-  manualOverrides = haskellPackagesNew: haskellPackagesOld: {
+  nativeOverrides = haskellPackagesNew: haskellPackagesOld: {
+    base-compat-batteries =
+      pkgsNew.haskell.lib.doJailbreak haskellPackagesOld.base-compat-batteries;
+
+    # `filesystem-trees` has an upper bound on `directory` that is too tight
+    filesystem-trees =
+      pkgsNew.haskell.lib.doJailbreak haskellPackagesOld.filesystem-trees;
+
+    codeworld-compiler =
+      pkgsNew.haskell.lib.addBuildTool
+        haskellPackagesOld.codeworld-compiler
+        (pkgsNew.haskell.packages.ghcjsHEAD.ghcWithPackages
+          (haskellPackages: [ haskellPackages.codeworld-base ])
+        );
+  };
+
+  ghcjsOverrides = haskellPackagesNew: haskellPackagesOld: {
     # `haddock` fails on packages with no modules:
     #
     # https://github.com/haskell/cabal/issues/944
@@ -41,11 +57,14 @@ let
 in
   { haskell = pkgsOld.haskell // {
       packages = pkgsOld.haskell.packages // {
+        ghc802 = pkgsOld.haskell.packages.ghc802.override {
+          overrides =
+            pkgsNew.lib.composeExtensions sourceOverrides nativeOverrides;
+        };
+
         ghcjsHEAD = pkgsOld.haskell.packages.ghcjsHEAD.override {
           overrides =
-            pkgsNew.lib.composeExtensions
-              sourceOverrides
-              manualOverrides;
+            pkgsNew.lib.composeExtensions sourceOverrides ghcjsOverrides;
         };
       };
     };

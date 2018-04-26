@@ -17,12 +17,7 @@ let
 
 in
   { inherit (pkgs.haskell.packages.ghc802)
-#     codeworld-api
-#     codeworld-compiler
-#     codeworld-error-sanitizer
-#     codeworld-game-api
-#     codeworld-game-server
-#     codeworld-prediction
+      codeworld-game-server
       codeworld-server
     ;
   }

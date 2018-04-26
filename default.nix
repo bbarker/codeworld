@@ -16,14 +16,13 @@ let
   pkgs = import nixpkgs { inherit config overlays; };
 
 in
-  { inherit (pkgs.haskell.packages.ghcjsHEAD)
-      codeworld-api
-      codeworld-base
-      codeworld-compiler
-      codeworld-error-sanitizer
-      codeworld-game-api
-      codeworld-game-server
-      codeworld-prediction
+  { inherit (pkgs.haskell.packages.ghc802)
+#     codeworld-api
+#     codeworld-compiler
+#     codeworld-error-sanitizer
+#     codeworld-game-api
+#     codeworld-game-server
+#     codeworld-prediction
       codeworld-server
     ;
   }

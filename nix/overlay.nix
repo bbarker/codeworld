@@ -18,6 +18,8 @@ let
       codeworld-prediction = ../codeworld-prediction;
 
       codeworld-server = ../codeworld-server;
+
+      funblocks-client = ../funblocks-client;
     };
 
   nativeSourceOverrides =
@@ -119,4 +121,67 @@ in
         };
       };
     };
+
+    codemirrorNix =
+      let
+        src =
+          pkgsNew.fetchFromGitHub {
+            owner = "codemirror";
+
+            repo = "CodeMirror";
+
+            rev = "5.25.2";
+
+            sha256 = "0l7wjdkria4iylykqj1k15cxa09kcyw477rbjbgfdbwzcwhnw1lc";
+          };
+
+      in
+        pkgsNew.runCommand "codemirror" {} ''
+          mkdir $out
+
+          ${pkgsNew.nodePackages.node2nix}/bin/node2nix --development --input ${src}/package.json --output $out/node-packages.nix --node-env $out/node-env.nix --composition $out/default.nix
+        '';
+
+    nodeEnv = pkgsNew.callPackage "${pkgsNew.codemirrorNix}/node-env.nix" { };
+
+    codemirror =
+      pkgsNew.callPackage "${pkgsNew.codemirrorNix}/node-packages.nix" { };
+
+    codemirrorCompressed =
+      let
+        components = pkgsNew.lib.concatStringsSep " " [
+          "codemirror"
+          "haskell"
+          "active-line"
+          "annotatescrollbar"
+          "dialog"
+          "match-highlighter"
+          "matchbrackets"
+          "matchesonscrollbar"
+          "placeholder"
+          "rulers"
+          "runmode"
+          "search"
+          "searchcursor"
+          "show-hint"
+        ];
+
+      in
+        pkgsNew.runCommand "codemirror-compressed" {} ''
+          cp -R ${pkgsNew.codemirror.package} $out
+          chmod -R u+w $out
+          cd $out/lib/node_modules/codemirror
+          bin/compress ${components} --local ${pkgsNew.nodePackages.uglify-js}/bin/uglifyjs > codemirror-compressed.js
+        '';
+
+    webDirectory =
+      pkgsNew.runCommand "web" {} ''
+        cp -R ${../web} $out
+        chmod -R u+w $out
+        for suffix in lib out rts runmain; do
+          ln -sf ${pkgsNew.haskell.packages.ghcjsHEAD.funblocks-client}/bin/funblocks-client.jsexe/$suffix.js $out/js/blocks_$suffix.js
+        done
+        ln -sf ${pkgsNew.codemirrorCompressed}/lib/node_modules/codemirror/codemirror-compressed.js $out/js/codemirror-compressed.js
+        ln -sf ${../third_party/CodeMirror/function-highlight-addon.js} $out/js/function-highlight-addon.js
+      '';
   }

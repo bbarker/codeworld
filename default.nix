@@ -20,4 +20,6 @@ in
       codeworld-game-server
       codeworld-server
     ;
+
+    inherit (pkgs) webDirectory;
   }

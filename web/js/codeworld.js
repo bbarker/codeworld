@@ -90,7 +90,6 @@ function init() {
             });
         } else if (hash[0] != 'F') {
             setCode('');
-            if (!signedIn()) help();
         }
     } else {
         setCode('');
@@ -107,6 +106,7 @@ function initCodeworld() {
             name: 'codeworld',
             overrideKeywords: codeworldKeywords
         },
+        undoDepth: 50,
         lineNumbers: true,
         autofocus: true,
         matchBrackets: window.buildMode !== 'codeworld',
@@ -565,8 +565,8 @@ function editorHelp(doc) {
         "<tr><td>Ctrl + Backspace </td><td>  Delete previous word</td></tr>" +
         "<tr><td>Ctrl + Delete </td><td>  Delete next word</td></tr>" +
         "<tr><td>Ctrl + F </td><td>  Search </td></tr>" +
-        "<tr><td>Ctrl + G </td><td>  Find next occurence </td></tr>" +
-        "<tr><td>Ctrl + Shift + G </td><td>  Find previous occurence </td></tr>" +
+        "<tr><td>Ctrl + G </td><td>  Find next occurrence </td></tr>" +
+        "<tr><td>Ctrl + Shift + G </td><td>  Find previous occurrence </td></tr>" +
         "<tr><td>Ctrl + Shift + F </td><td>  Replace </td></tr>" +
         "<tr><td>Ctrl + Shift + R </td><td>  Replace All </td></tr>" +
         "<tr><td>Ctrl + S </td><td> Save </td></tr>" +
@@ -575,7 +575,7 @@ function editorHelp(doc) {
         "<tr><td>Ctrl + U </td><td> Undo Selection </td></tr>" +
         "<tr><td>Ctrl + Shift +  U / Alt + U </td><td> Redo Selection </td></tr>" +
         "<tr><td>Tab / Ctrl + ] </td><td> Indent </td></tr>" +
-        "<tr><td>Shift + Tab / Ctrl + [ </td><td> Un-indent </td></tr>" +
+        "<tr><td>Shift + Tab / Ctrl + [ </td><td> Unindent </td></tr>" +
         "<tr><td>Ctrl + I </td><td> Reformat (Haskell Mode Only) </td></tr>" +
         "</tbody></table></div>";
     sweetAlert({
@@ -767,13 +767,14 @@ function compile() {
         sendHttp('POST', 'runMsg', data, function(request) {
             var msg = '';
             if (request.status == 200) {
-                msg = request.responseText;
+                msg = request.responseText.trim();
             } else if (request.status >= 400) {
                 msg = "Sorry!  Your program couldn't be run right now.  Please try again.";
             }
+            if (msg != '') msg += '\n\n';
 
             if (success) {
-                run(hash, dhash, 'Running...\n\n' + msg, false);
+                run(hash, dhash, msg, false);
             } else {
                 run(hash, '', msg, true);
             }
@@ -787,7 +788,7 @@ function signinCallback(result) {
     discoverProjects("", 0);
     cancelMove();
     updateUI();
-    if (isFirstSignin && !signedIn()) {
+    if (isFirstSignin && !signedIn() && location.hash.length <= 2) {
         help();
     }
     isFirstSignin = false;

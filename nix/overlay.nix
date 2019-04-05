@@ -39,7 +39,7 @@ let
     codeworld-compiler =
       pkgsNew.haskell.lib.addBuildDepend
         haskellPackagesOld.codeworld-compiler
-        (pkgsNew.haskell.packages.ghcjsHEAD.ghcWithPackages
+        (pkgsNew.haskell.packages.ghcjs.ghcWithPackages
           (haskellPackages: [
               haskellPackages.codeworld-api
               haskellPackages.codeworld-base
@@ -115,7 +115,7 @@ in
             ];
         };
 
-        ghcjsHEAD = pkgsOld.haskell.packages.ghcjsHEAD.override {
+        ghcjs = pkgsOld.haskell.packages.ghcjs.override {
           overrides =
             pkgsNew.lib.fold pkgsNew.lib.composeExtensions (_: _: {}) [
               codeworldSourceOverrides
@@ -183,7 +183,7 @@ in
         cp -R ${../web} $out
         chmod -R u+w $out
         for suffix in lib out rts runmain; do
-          ln -sf ${pkgsNew.haskell.packages.ghcjsHEAD.funblocks-client}/bin/funblocks-client.jsexe/$suffix.js $out/js/blocks_$suffix.js
+          ln -sf ${pkgsNew.haskell.packages.ghcjs.funblocks-client}/bin/funblocks-client.jsexe/$suffix.js $out/js/blocks_$suffix.js
         done
         ln -sf ${pkgsNew.codemirrorCompressed}/lib/node_modules/codemirror/codemirror-compressed.js $out/js/codemirror-compressed.js
         ln -sf ${../third_party/CodeMirror/function-highlight-addon.js} $out/js/function-highlight-addon.js

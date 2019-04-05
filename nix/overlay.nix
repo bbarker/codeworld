@@ -5,7 +5,11 @@ let
     pkgsNew.haskell.lib.packageSourceOverrides {
       codeworld-base = ../codeworld-base;
 
+      codeworld-account = ../codeworld-account;
+
       codeworld-api = ../codeworld-api;
+
+      codeworld-auth = ../codeworld-auth;
 
       codeworld-compiler = ../codeworld-compiler;
 

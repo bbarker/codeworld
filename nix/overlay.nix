@@ -186,6 +186,5 @@ in
           ln -sf ${pkgsNew.haskell.packages.ghcjs.funblocks-client}/bin/funblocks-client.jsexe/$suffix.js $out/js/blocks_$suffix.js
         done
         ln -sf ${pkgsNew.codemirrorCompressed}/lib/node_modules/codemirror/codemirror-compressed.js $out/js/codemirror-compressed.js
-        ln -sf ${../third_party/CodeMirror/function-highlight-addon.js} $out/js/function-highlight-addon.js
       '';
   }
